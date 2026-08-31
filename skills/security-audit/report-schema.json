@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jeyasingh237/security-skill-compiler/report-schema.json",
+  "title": "Security Skill Compiler findings",
+  "type": "object",
+  "required": ["schemaVersion", "target", "summary", "findings"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "target": {
+      "type": "object",
+      "required": ["path", "scope", "stacks"],
+      "additionalProperties": false,
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "scope": { "type": "string", "minLength": 1 },
+        "revision": { "type": ["string", "null"] },
+        "stacks": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["critical", "high", "medium", "low"],
+      "additionalProperties": false,
+      "properties": {
+        "critical": { "type": "integer", "minimum": 0 },
+        "high": { "type": "integer", "minimum": 0 },
+        "medium": { "type": "integer", "minimum": 0 },
+        "low": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "severity", "confidence", "location", "attackerPrerequisites", "attackPath", "impact", "evidence", "remediation", "validation"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^SSC-[0-9]{3,}$" },
+          "title": { "type": "string", "minLength": 1 },
+          "severity": { "enum": ["critical", "high", "medium", "low"] },
+          "confidence": { "enum": ["high", "medium"] },
+          "cwe": { "type": ["string", "null"], "pattern": "^CWE-[0-9]+$" },
+          "location": {
+            "type": "object",
+            "required": ["path", "line"],
+            "additionalProperties": false,
+            "properties": {
+              "path": { "type": "string", "minLength": 1 },
+              "line": { "type": "integer", "minimum": 1 }
+            }
+          },
+          "attackerPrerequisites": { "type": "string", "minLength": 1 },
+          "attackPath": { "type": "array", "minItems": 2, "items": { "type": "string", "minLength": 1 } },
+          "impact": { "type": "string", "minLength": 1 },
+          "evidence": { "type": "string", "minLength": 1 },
+          "remediation": { "type": "string", "minLength": 1 },
+          "validation": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "coverage": { "type": "array", "items": { "type": "string" } },
+    "limitations": { "type": "array", "items": { "type": "string" } },
+    "hardeningNotes": { "type": "array", "items": { "type": "string" } },
+    "rejectedCandidates": { "type": "array", "items": { "type": "string" } }
+  }
+}

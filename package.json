@@ -1,0 +1,40 @@
+{
+  "name": "security-skill-compiler",
+  "version": "0.1.0",
+  "description": "Compile stack-aware, harness-ready security audit skills for any repository.",
+  "type": "module",
+  "bin": {
+    "security-skill-compiler": "./bin/security-skill-compiler.js"
+  },
+  "exports": {
+    ".": "./src/index.mjs"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "skills/",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check bin/security-skill-compiler.js && node --check src/cli.mjs && node --check src/compiler.mjs && node --check src/install.mjs && node --check skills/security-audit/scripts/detect-stack.mjs && node --check skills/security-audit/scripts/validate-findings.mjs",
+    "prepublishOnly": "npm run check && npm test"
+  },
+  "engines": {
+    "node": ">=18.17"
+  },
+  "keywords": [
+    "agent-skills",
+    "application-security",
+    "codex",
+    "claude-code",
+    "security-audit",
+    "static-analysis"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jeyasingh237/security-skill-compiler.git"
+  },
+  "license": "MIT"
+}

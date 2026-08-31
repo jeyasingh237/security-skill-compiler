@@ -1,0 +1,4 @@
+interface:
+  display_name: "Stack-aware Security Audit"
+  short_description: "Find exploitable stack-specific vulnerabilities"
+  default_prompt: "Use $security-audit to detect this repository stack, audit it for exploitable vulnerabilities, and validate every finding."
