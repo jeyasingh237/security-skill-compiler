@@ -45,3 +45,32 @@ test("rejects fields outside the published schema", () => {
   document.findings[0].scannerGuess = "critical";
   assert.ok(validateFindings(document).some((error) => /scannerGuess is not allowed/.test(error)));
 });
+
+test("accepts separately classified AWS posture findings", () => {
+  const document = validDocument();
+  document.postureSummary = { critical: 0, high: 0, medium: 1, low: 0, info: 0 };
+  document.postureFindings = [{
+    id: "SSC-P-001",
+    title: "CloudTrail is disabled in one in-scope region",
+    severity: "medium",
+    confidence: "high",
+    controlFamily: "Detection and logging",
+    evidenceClass: "live-account",
+    resources: ["account:example/region:us-east-1"],
+    risk: "Administrative activity is not available for timely detection and investigation",
+    evidence: "The authorized read-only inventory returned no trail covering the region",
+    remediation: "Enable an organization or multi-region trail with protected central delivery",
+    validation: "Read-only inventory completed with pagination",
+    trafficImpact: "no",
+    standardRefs: ["AWS Foundational Security Best Practices"]
+  }];
+
+  assert.deepEqual(validateFindings(document), []);
+});
+
+test("requires posture summary counts to match posture findings", () => {
+  const document = validDocument();
+  document.postureSummary = { critical: 0, high: 1, medium: 0, low: 0, info: 0 };
+  document.postureFindings = [];
+  assert.ok(validateFindings(document).some((error) => /postureSummary\.high/.test(error)));
+});

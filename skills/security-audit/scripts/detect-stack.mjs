@@ -22,7 +22,9 @@ const MANIFEST_NAMES = new Set([
   "Gemfile",
   "CMakeLists.txt",
   "Chart.yaml",
-  "Pulumi.yaml"
+  "Pulumi.yaml",
+  "cdk.json",
+  "samconfig.toml"
 ]);
 
 const MANIFEST_STACKS = {
@@ -122,7 +124,7 @@ function dependencyTextFromPackageJson(raw) {
 function containsToken(text, token) {
   if (/^[a-z0-9]+$/i.test(token)) {
     const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    return new RegExp(`(^|[\\s"'=:,;()[\\]{}])${escaped}(?=$|[\\s"':,;()[\\]{}<>])`, "i").test(text);
+    return new RegExp(`(^|[\\s"'=:,;()[\\]{}])${escaped}(?=$|[\\s"'=:,;()[\\]{}<>])`, "i").test(text);
   }
   return text.includes(token.toLowerCase());
 }
@@ -173,6 +175,36 @@ export async function detectRepository(root = process.cwd(), options = {}) {
       addSignal(state, "infrastructure", 1, `${extension} source files`);
       state.infrastructure.frameworks.add("Terraform");
     }
+    if (
+      extension === ".tf" ||
+      extension === ".hcl" ||
+      basename === "cdk.json" ||
+      basename === "samconfig.toml" ||
+      /^(?:serverless|template)(?:\.[^.]+)?\.(?:ya?ml|json)$/i.test(basename) ||
+      /cloudformation/i.test(file.relative)
+    ) {
+      const cloudConfiguration = (await readSmallFile(file.absolute)).toLowerCase();
+      if (/provider\s+["']aws["']|\baws_[a-z0-9_]+\b|arn:aws(?:-[a-z]+)?:/.test(cloudConfiguration)) {
+        addSignal(state, "aws", 4, `AWS configuration in ${file.relative}`);
+        state.aws.frameworks.add(extension === ".tf" || extension === ".hcl" ? "Terraform AWS Provider" : "AWS configuration");
+      }
+      if (/aws::[a-z0-9]+::[a-z0-9]+/i.test(cloudConfiguration)) {
+        addSignal(state, "aws", 4, `CloudFormation resources in ${file.relative}`);
+        state.aws.frameworks.add("AWS CloudFormation");
+      }
+      if (basename === "cdk.json") {
+        addSignal(state, "aws", 5, file.relative);
+        state.aws.frameworks.add("AWS CDK");
+      }
+      if (basename === "samconfig.toml" || /transform\s*:\s*aws::serverless/i.test(cloudConfiguration)) {
+        addSignal(state, "aws", 5, `AWS SAM in ${file.relative}`);
+        state.aws.frameworks.add("AWS SAM");
+      }
+      if (/^service\s*:/im.test(cloudConfiguration) && /provider\s*:\s*\n?\s*name\s*:\s*aws/im.test(cloudConfiguration) && /serverless/i.test(basename)) {
+        addSignal(state, "aws", 4, `Serverless Framework in ${file.relative}`);
+        state.aws.frameworks.add("Serverless Framework");
+      }
+    }
     if (file.relative.startsWith(".github/workflows/") && /\.ya?ml$/i.test(basename)) {
       addSignal(state, "infrastructure", 3, ".github/workflows");
       state.infrastructure.frameworks.add("GitHub Actions");
@@ -205,6 +237,11 @@ export async function detectRepository(root = process.cwd(), options = {}) {
   }
 
   const combinedDependencies = allDependencyText.join("\n");
+  const awsFrameworksBeforeDependencies = state.aws.frameworks.size;
+  addFrameworkMatches(state, "aws", combinedDependencies, "dependency manifests");
+  if (state.aws.frameworks.size > awsFrameworksBeforeDependencies) {
+    addSignal(state, "aws", 5, "AWS dependencies");
+  }
   addFrameworkMatches(state, "ai-llm", combinedDependencies, "dependency manifests");
   if (state["ai-llm"].frameworks.size > 0) {
     addSignal(state, "ai-llm", 5, "AI/LLM dependencies");
@@ -229,7 +266,7 @@ export async function detectRepository(root = process.cwd(), options = {}) {
     root: resolvedRoot,
     scannedFiles: files.length,
     truncated,
-    primaryStack: stacks.find((stack) => stack.id !== "infrastructure" && stack.id !== "ai-llm")?.id ?? stacks[0]?.id ?? null,
+    primaryStack: stacks.find((stack) => !["infrastructure", "aws", "ai-llm"].includes(stack.id))?.id ?? stacks[0]?.id ?? null,
     stacks
   };
 }

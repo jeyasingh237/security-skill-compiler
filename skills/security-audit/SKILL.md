@@ -1,17 +1,25 @@
 ---
 name: security-audit
-description: Perform an exploitability-first security audit of a repository, diff, service, API, web application, library, CLI, native component, infrastructure definition, or AI/LLM system. Use when asked to find vulnerabilities, review application security, perform a penetration-oriented code review, threat-model reachable code, validate suspected security bugs, or produce a security audit report. Detects the repository stack and loads only the relevant language, framework, infrastructure, and AI security guidance.
+description: Audit a repository, diff, service, API, web application, library, CLI, native component, infrastructure definition, AWS environment, or AI/LLM system for exploitable vulnerabilities and requested cloud-security posture gaps. Use for application-security review, penetration-oriented code review, threat modeling, AWS/IaC configuration assessment, benchmark-style cloud review, suspected vulnerability validation, or security audit reporting. Detects the stack and loads only relevant guidance.
 ---
 
 # Stack-aware security audit
 
-Find exploitable vulnerabilities with concrete impact. Do not turn style, hardening, or checklist deviations into findings.
+Find exploitable vulnerabilities with concrete impact. For infrastructure posture reviews, also report unmet controls without misrepresenting them as demonstrated exploits.
 
 ## Establish scope
 
 1. Identify the exact target from the request. Default to the current repository only when the request is repository-wide.
 2. Respect a requested diff, directory, component, or vulnerability class as the reporting boundary. Inspect related code outside that boundary when required to validate data flow or defenses.
 3. Do not probe public or production systems unless the user explicitly authorized that target. Prefer source analysis and local reproduction.
+
+## Select the audit mode
+
+- **Exploitability** is the default for application code, diffs, vulnerability hunting, and penetration-oriented review. Confirm an attacker path before reporting a vulnerability.
+- **Posture** applies when the user asks for cloud/IaC configuration gaps, benchmark or checklist coverage, compliance controls, hardening, or comparison with a scanner/manual cloud report. Report evidence-backed posture findings even when no immediate exploit is proven.
+- **Combined** applies to broad AWS, cloud infrastructure, or IaC audits unless the user explicitly narrows the request. Keep confirmed vulnerabilities and posture findings in separate sections and counts.
+
+Classify each observation by its strongest evidence source: repository configuration, resolved plan/state, read-only live inventory, or user-supplied evidence. Absence from a repository is not proof that an account-level control is disabled. Put such controls in the coverage/limitations section unless plan, state, live inventory, or supplied evidence establishes their status.
 
 ## Detect the stack
 
@@ -31,6 +39,8 @@ Always read:
 - `references/attack-classes.md`
 - `references/reporting.md` when preparing findings
 
+When AWS is detected, read `references/stacks/aws.md`. It contains the AWS/IaC review matrix and the boundary between source-verifiable and live-only controls.
+
 Read stack references progressively. Do not load guidance for absent stacks.
 
 ## Audit workflow
@@ -45,6 +55,7 @@ Map the application before hunting:
 - authentication and authorization enforcement points, including alternate and bulk paths;
 - dangerous sinks and sensitive assets;
 - production controls visible in repository-owned deployment configuration.
+- for posture or combined audits, applicable control families and whether each is verified, failed, not applicable, or unverified.
 
 Record concrete file paths and line numbers. Distinguish attacker-controlled input from operator configuration and trusted build-time input.
 
@@ -82,11 +93,11 @@ Try to disprove every candidate:
 - Is the claimed impact observable and security-significant?
 - Could the proof alter data or escape the authorized local target? If so, use a non-destructive substitute.
 
-Reject candidates that fail. Put useful defense-in-depth observations in hardening notes, separate from vulnerabilities.
+Reject exploit candidates that fail. In posture or combined mode, retain independently evidenced control failures as posture findings, separate from vulnerabilities. Never infer a live-account failure merely because its resource is absent from the current repository.
 
 ### 5. Report
 
-Follow `references/reporting.md`. Every confirmed finding must include a stable ID, severity, confidence, affected location, attacker prerequisites, exact attack path, impact, evidence, remediation, and validation status.
+Follow `references/reporting.md`. Every confirmed vulnerability must include a stable ID, severity, confidence, affected location, attacker prerequisites, exact attack path, impact, evidence, remediation, and validation status. Every posture finding must identify its control family, affected resources, evidence class, risk, remediation, and validation status.
 
 If structured artifacts are requested, write `findings.json` against `report-schema.json` and run:
 
@@ -103,7 +114,7 @@ State coverage limits and untested assumptions. If no vulnerability meets the ba
 - Do not weaken safeguards, create persistence, exfiltrate data, or target systems outside scope.
 - Do not report a dependency advisory from version matching alone; establish applicability and reachability.
 - Do not rate severity from a scanner label alone; combine exploit preconditions with demonstrated impact.
-- Do not call missing defense in depth a vulnerability when another reliable layer blocks the attack.
+- Do not call missing defense in depth a vulnerability when another reliable layer blocks the attack. In posture mode it may still be a posture finding when the requested standard or security objective requires it.
 
 ## Source discipline
 

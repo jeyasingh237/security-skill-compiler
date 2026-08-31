@@ -60,6 +60,12 @@ export const STACK_CATALOG = [
     sourceExtensions: [".tf", ".hcl"]
   },
   {
+    id: "aws",
+    label: "AWS",
+    reference: "references/stacks/aws.md",
+    sourceExtensions: []
+  },
+  {
     id: "ai-llm",
     label: "AI / LLM",
     reference: "references/stacks/ai-llm.md",
@@ -169,6 +175,16 @@ export const FRAMEWORK_TOKENS = {
     ["helm", "Helm"],
     ["docker", "Docker"],
     ["github-actions", "GitHub Actions"]
+  ],
+  aws: [
+    ["@aws-cdk/", "AWS CDK"],
+    ["aws-cdk-lib", "AWS CDK"],
+    ["@aws-sdk/", "AWS SDK"],
+    ["boto3", "AWS SDK"],
+    ["botocore", "AWS SDK"],
+    ["github.com/aws/aws-sdk-go", "AWS SDK"],
+    ["software.amazon.awssdk", "AWS SDK"],
+    ["AWSSDK.", "AWS SDK"]
   ],
   "ai-llm": [
     ["openai", "OpenAI SDK"],

@@ -64,3 +64,47 @@ test("matches simple framework names as dependency tokens, not substrings", asyn
   assert.equal(javascript.frameworks.includes("Next.js"), false);
   assert.equal(javascript.frameworks.includes("React"), false);
 });
+
+test("detects AWS IaC separately from generic infrastructure", async (context) => {
+  const root = await fixture({
+    "envs/production/main.tf": `
+      terraform { required_providers { aws = { source = "hashicorp/aws" } } }
+      provider "aws" { region = "us-east-1" }
+      resource "aws_s3_bucket" "assets" { bucket = "example-assets" }
+    `
+  });
+  context.after(() => fs.rm(root, { recursive: true, force: true }));
+
+  const detection = await detectRepository(root);
+  const byId = Object.fromEntries(detection.stacks.map((stack) => [stack.id, stack]));
+  assert.ok(byId.infrastructure.frameworks.includes("Terraform"));
+  assert.ok(byId.aws.frameworks.includes("Terraform AWS Provider"));
+  assert.equal(byId.aws.reference, "references/stacks/aws.md");
+});
+
+test("does not infer AWS from non-AWS Terraform", async (context) => {
+  const root = await fixture({
+    "main.tf": `
+      terraform { required_providers { google = { source = "hashicorp/google" } } }
+      resource "google_storage_bucket" "assets" { name = "example-assets" }
+    `
+  });
+  context.after(() => fs.rm(root, { recursive: true, force: true }));
+
+  const detection = await detectRepository(root);
+  assert.ok(detection.stacks.some((stack) => stack.id === "infrastructure"));
+  assert.equal(detection.stacks.some((stack) => stack.id === "aws"), false);
+});
+
+test("detects AWS from a single SDK dependency", async (context) => {
+  const root = await fixture({
+    "requirements.txt": "boto3==1.40.0\n",
+    "handler.py": "import boto3\n"
+  });
+  context.after(() => fs.rm(root, { recursive: true, force: true }));
+
+  const detection = await detectRepository(root);
+  const aws = detection.stacks.find((stack) => stack.id === "aws");
+  assert.ok(aws);
+  assert.ok(aws.frameworks.includes("AWS SDK"));
+});

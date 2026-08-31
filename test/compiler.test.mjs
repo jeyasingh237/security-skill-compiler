@@ -35,3 +35,17 @@ test("does not overwrite an unmanaged skill without force", async (context) => {
   await assert.rejects(() => compileSkill({ targetRoot: root, outputRoot: output }), /Refusing to overwrite unmanaged skill/);
   assert.equal(await fs.readFile(path.join(output, "security-audit/SKILL.md"), "utf8"), "user content\n");
 });
+
+test("includes AWS guidance only for detected AWS repositories", async (context) => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "ssc-compile-aws-target-"));
+  const output = await fs.mkdtemp(path.join(os.tmpdir(), "ssc-compile-aws-output-"));
+  context.after(() => Promise.all([
+    fs.rm(root, { recursive: true, force: true }),
+    fs.rm(output, { recursive: true, force: true })
+  ]));
+  await fs.writeFile(path.join(root, "main.tf"), 'provider "aws" { region = "us-east-1" }\nresource "aws_lambda_function" "job" { function_name = "job" }\n', "utf8");
+
+  const result = await compileSkill({ targetRoot: root, outputRoot: output });
+  assert.equal(await fs.stat(path.join(result.destination, "references/stacks/aws.md")).then(() => true), true);
+  assert.ok(result.detection.stacks.some((stack) => stack.id === "aws"));
+});

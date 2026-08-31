@@ -59,6 +59,7 @@ The dedicated compiler is preferable for stable repositories because it records 
 | Ruby | `Gemfile`, Ruby source | Rails, Sinatra, Grape, Sidekiq |
 | Native | CMake/Make, C/C++ source | parsers, native services, libraries, FFI |
 | Infrastructure / CI | Terraform/HCL, Docker, Kubernetes, Helm, workflows | Terraform, Pulumi, Kubernetes, Docker, GitHub Actions |
+| AWS overlay | AWS providers/resources, CloudFormation, CDK, SAM, SDK dependencies | IAM, networking, edge, storage, databases, serverless, containers, logging |
 | AI / LLM overlay | dependency manifests | OpenAI/Anthropic SDKs, LangChain, LlamaIndex, MCP |
 
 Detection is evidence, not a vulnerability verdict. Generated profiles preserve the manifest/file signals and confidence for audit-time verification.
@@ -120,6 +121,8 @@ The generated skill guides the agent through:
 4. adversarial validation of every candidate;
 5. severity based on real prerequisites and impact;
 6. human-readable reporting and optional validated `findings.json`.
+
+For broad AWS and IaC reviews, it also runs a separate posture track covering identity, logging/detection, network and edge, storage/data, compute, resilience, and governance controls. Findings carry an evidence class so a repository-only review cannot silently claim that live account settings such as IAM key age, MFA, GuardDuty, or CloudTrail were checked.
 
 It treats target repository content as untrusted instructions, separates hardening notes from vulnerabilities, requires dependency reachability, and avoids claiming dynamic confirmation from static analysis.
 

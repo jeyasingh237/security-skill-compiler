@@ -1,4 +1,4 @@
 interface:
   display_name: "Stack-aware Security Audit"
-  short_description: "Find exploitable stack-specific vulnerabilities"
-  default_prompt: "Use $security-audit to detect this repository stack, audit it for exploitable vulnerabilities, and validate every finding."
+  short_description: "Find vulnerabilities and cloud posture gaps"
+  default_prompt: "Use $security-audit to detect this stack, audit exploitable paths and applicable AWS/IaC posture controls, and validate every finding."
