@@ -128,7 +128,7 @@ It treats target repository content as untrusted instructions, separates hardeni
 
 Web targets receive an additional cross-stack review module covering authentication and session lifecycle, horizontal/vertical authorization, tenancy, browser storage, XSS/CSRF/CORS/clickjacking, headers and CSP, HTTP/proxy/cache behavior, uploads, SSRF, OAuth/OIDC/SAML, TLS termination and cipher claims, dependency reachability, and business-logic/concurrency abuse. It explicitly treats OWASP as coverage guidance rather than a bug list, accounts for CDN/identity-proxy controls, verifies parser/runtime assumptions, avoids report padding, and records material controls that resisted testing.
 
-The common workflow is informed by [Cloudflare's security-audit skill](https://github.com/cloudflare/security-audit-skill). Stack modules cite official language/framework repositories and established ecosystem security tooling, including Node.js, Django, Go vulnerability management, RustSec, Spring Security, ASP.NET Core, Laravel/Symfony, Rails, Kubernetes, and OWASP.
+The common workflow follows established security-audit practices, combining structured reconnaissance, stack-specific threat analysis, evidence-based validation, and independent verification. Stack modules cite official language/framework repositories and established ecosystem security tooling, including Node.js, Django, Go vulnerability management, RustSec, Spring Security, ASP.NET Core, Laravel/Symfony, Rails, Kubernetes, and OWASP.
 
 ## Development
 
