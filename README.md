@@ -25,25 +25,17 @@ npx security-skill-compiler@latest install ./services/api \
   --harness codex,claude-code
 ```
 
-Until the first npm release, run the package directly from GitHub:
-
-```bash
-npx github:jeyasingh237/security-skill-compiler --all-harnesses
-```
-
 The install is project-local. It does not change global agent configuration.
 
-## Agent Skills CLI installation
+## Agent Skills installation
 
-This repository also ships a portable runtime-detecting skill at `skills/security-audit`. Install that uncompiled skill into any harness supported by the open Agent Skills CLI:
+The published npm package includes the portable security-audit skill and its stack detector. Install a repository-specific copy into every supported project-scoped harness path with:
 
 ```bash
-npx skills add jeyasingh237/security-skill-compiler \
-  --skill security-audit \
-  --all
+npx security-skill-compiler@latest install . --all-harnesses
 ```
 
-The dedicated compiler is preferable for stable repositories because it records detection evidence in `STACK_PROFILE.md` and removes irrelevant stack modules. The generic skill runs the same detector when the audit starts.
+The compiler records detection evidence in `STACK_PROFILE.md` and removes irrelevant stack modules. The bundled generic skill runs the same detector when an audit starts.
 
 ## What gets detected
 
