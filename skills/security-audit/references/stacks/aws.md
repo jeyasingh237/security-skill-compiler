@@ -1,6 +1,8 @@
 # AWS and IaC audit module
 
-Use this module with the general infrastructure module. For a broad AWS or IaC request, perform both an exploitability review and a posture review unless the user asks for only one.
+Use this module with the general infrastructure module. When AWS is detected in a repository-wide or infrastructure-wide audit, perform both an exploitability review and a posture review unless the user explicitly asks for exploitability-only output.
+
+For the posture pass, read [aws-posture-controls.md](aws-posture-controls.md). Its per-control ledger is mandatory; the broad families below explain how to reason about those controls but do not replace the ledger.
 
 ## Resolve what the evidence can prove
 
@@ -42,7 +44,9 @@ Public CIDRs, wildcard principals, and wildcard actions are starting points. Acc
 
 ## Posture coverage ledger
 
-For posture or combined audits, maintain a ledger with one row per applicable control: control, scope, status (`pass`, `fail`, `not-applicable`, or `unverified`), evidence class, evidence location/resource, and validation note. This prevents an audit from silently skipping controls that require live inventory.
+For posture or combined audits, maintain a ledger with one row for every control in `aws-posture-controls.md`: control, scope, status (`pass`, `fail`, `not-applicable`, or `unverified`), evidence class, evidence location/resource, and validation note. Do not issue the report with missing rows. This prevents an audit from silently skipping controls that require live inventory.
+
+Run the posture pass independently after exploit discovery. A candidate rejected as an exploitable vulnerability because routing, authentication, desired count, workflow enablement, or another layer blocks the attack must still be tested against the posture catalog. Report a proven control failure as posture even when the composed exploit is blocked.
 
 ### Identity and organization
 
@@ -122,6 +126,7 @@ For public Lambda URLs, separate unauthenticated business endpoints from acciden
 - Recalculate severity from exposure, data sensitivity, attacker prerequisites, blast radius, and compensating controls. Do not copy a scanner’s `HIGH`/`MEDIUM`/`LOW` label as the verdict.
 - Keep availability/resilience, observability, cost/lifecycle, and compliance-only findings identifiable; they are not automatically exploitable vulnerabilities.
 - Group identical control failures across resources when the cause and remediation are the same, but list every affected resource or provide a machine-readable attachment. Split findings when exposure, ownership, or remediation differs.
+- Do not let a broad incident finding absorb independently actionable posture failures. For example, a secret-bearing plan artifact and plaintext ECS secret injection have different prevention points and should both remain visible even if rotation scope overlaps.
 - Include production-traffic impact only when requested and use `yes`, `no`, or `unknown`; explain whether the value refers to remediation impact or current security impact.
 - For live inventory, record account ID in redacted or user-approved form, regions queried, APIs used, collection time, pagination completion, and denied/failed calls.
 - For plans/state, never reproduce secret values. If credentials appear, report type, count, status when safely knowable, and rotation scope.

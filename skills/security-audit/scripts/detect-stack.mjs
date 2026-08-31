@@ -286,8 +286,11 @@ export function formatDetectionMarkdown(detection) {
 
   lines.push("| Stack | Confidence | Frameworks | Evidence | Load |", "|---|---|---|---|---|");
   for (const stack of detection.stacks) {
+    const evidence = stack.signals.length > 8
+      ? [...stack.signals.slice(0, 8), `… ${stack.signals.length - 8} more signal${stack.signals.length - 8 === 1 ? "" : "s"}`]
+      : stack.signals;
     lines.push(
-      `| ${stack.label} | ${stack.confidence} | ${stack.frameworks.join(", ") || "—"} | ${stack.signals.join("; ")} | \`${stack.reference}\` |`
+      `| ${stack.label} | ${stack.confidence} | ${stack.frameworks.join(", ") || "—"} | ${evidence.join("; ")} | \`${stack.reference}\` |`
     );
   }
   lines.push("", "Treat this profile as routing evidence, not proof that every detected framework is reachable in production.", "");

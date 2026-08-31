@@ -67,7 +67,9 @@ export async function compileSkill(options = {}) {
   if (selected.size > 0) {
     for (const stack of STACK_CATALOG) {
       if (!selected.has(stack.id)) {
-        await fs.rm(path.join(stagedDirectory, stack.reference), { force: true });
+        for (const reference of [stack.reference, ...(stack.supportingReferences ?? [])]) {
+          await fs.rm(path.join(stagedDirectory, reference), { force: true });
+        }
       }
     }
   }
@@ -79,7 +81,10 @@ export async function compileSkill(options = {}) {
     schemaVersion: 1,
     target: ".",
     primaryStack: detection.primaryStack,
-    stacks: detection.stacks.map(({ id, confidence, frameworks, reference }) => ({ id, confidence, frameworks, reference }))
+    stacks: detection.stacks.map(({ id, confidence, frameworks, reference }) => {
+      const catalogEntry = STACK_CATALOG.find((stack) => stack.id === id);
+      return { id, confidence, frameworks, reference, supportingReferences: catalogEntry?.supportingReferences ?? [] };
+    })
   };
 
   await fs.writeFile(path.join(stagedDirectory, "STACK_PROFILE.md"), profile, "utf8");

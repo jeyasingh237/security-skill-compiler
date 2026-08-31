@@ -21,6 +21,7 @@ test("compiles a pruned, repository-specific skill", async (context) => {
   assert.equal(await fs.stat(path.join(result.destination, "references/stacks/rust.md")).then(() => true), true);
   assert.equal(await fs.stat(path.join(result.destination, "references/web-application.md")).then(() => true), true);
   assert.equal(await fs.stat(path.join(result.destination, "references/stacks/python.md")).then(() => true, () => false), false);
+  assert.equal(await fs.stat(path.join(result.destination, "references/stacks/aws-posture-controls.md")).then(() => true, () => false), false);
   const manifest = JSON.parse(await fs.readFile(path.join(result.destination, "compiler-manifest.json"), "utf8"));
   assert.equal(manifest.compiler, "security-skill-compiler");
 });
@@ -48,5 +49,8 @@ test("includes AWS guidance only for detected AWS repositories", async (context)
 
   const result = await compileSkill({ targetRoot: root, outputRoot: output });
   assert.equal(await fs.stat(path.join(result.destination, "references/stacks/aws.md")).then(() => true), true);
+  assert.equal(await fs.stat(path.join(result.destination, "references/stacks/aws-posture-controls.md")).then(() => true), true);
   assert.ok(result.detection.stacks.some((stack) => stack.id === "aws"));
+  const manifest = JSON.parse(await fs.readFile(path.join(result.destination, "compiler-manifest.json"), "utf8"));
+  assert.deepEqual(manifest.stacks.find((stack) => stack.id === "aws").supportingReferences, ["references/stacks/aws-posture-controls.md"]);
 });

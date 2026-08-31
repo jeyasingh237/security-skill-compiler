@@ -63,6 +63,7 @@ export const STACK_CATALOG = [
     id: "aws",
     label: "AWS",
     reference: "references/stacks/aws.md",
+    supportingReferences: ["references/stacks/aws-posture-controls.md"],
     sourceExtensions: []
   },
   {
@@ -84,6 +85,8 @@ export const IGNORED_DIRECTORIES = new Set([
   ".gemini",
   ".security-audit",
   ".security-skill-compiler",
+  ".terraform",
+  ".terragrunt-cache",
   ".venv",
   ".yarn",
   "__pycache__",

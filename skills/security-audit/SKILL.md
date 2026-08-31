@@ -1,6 +1,6 @@
 ---
 name: security-audit
-description: Audit a repository, diff, service, API, web application, library, CLI, native component, infrastructure definition, AWS environment, or AI/LLM system for exploitable vulnerabilities and requested cloud-security posture gaps. Use for application-security review, penetration-oriented code review, threat modeling, AWS/IaC configuration assessment, benchmark-style cloud review, suspected vulnerability validation, or security audit reporting. Detects the stack and loads only relevant guidance.
+description: Audit a repository, diff, service, API, web application, library, CLI, native component, infrastructure definition, AWS environment, or AI/LLM system. Use for application-security review, penetration-oriented code review, threat modeling, AWS/IaC configuration assessment, benchmark-style cloud review, suspected vulnerability validation, or security audit reporting. AWS and IaC repository audits include both exploitable vulnerabilities and a complete evidence-backed posture pass unless the user explicitly requests exploit-only scope.
 ---
 
 # Stack-aware security audit
@@ -17,7 +17,7 @@ Find exploitable vulnerabilities with concrete impact. For infrastructure postur
 
 - **Exploitability** is the default for application code, diffs, vulnerability hunting, and penetration-oriented review. Confirm an attacker path before reporting a vulnerability.
 - **Posture** applies when the user asks for cloud/IaC configuration gaps, benchmark or checklist coverage, compliance controls, hardening, or comparison with a scanner/manual cloud report. Report evidence-backed posture findings even when no immediate exploit is proven.
-- **Combined** applies to broad AWS, cloud infrastructure, or IaC audits unless the user explicitly narrows the request. Keep confirmed vulnerabilities and posture findings in separate sections and counts.
+- **Combined** is mandatory when AWS is detected in a repository-wide or infrastructure-wide audit, even when the request uses only words such as “bugs,” “vulnerabilities,” or “security audit.” Skip posture only when the user explicitly requests exploitability-only or penetration-only output. Keep confirmed vulnerabilities and posture findings in separate sections and counts.
 
 Classify each observation by its strongest evidence source: repository configuration, resolved plan/state, read-only live inventory, or user-supplied evidence. Absence from a repository is not proof that an account-level control is disabled. Put such controls in the coverage/limitations section unless plan, state, live inventory, or supplied evidence establishes their status.
 
@@ -41,7 +41,7 @@ Always read:
 
 When the target exposes HTTP routes, browser UI, REST/GraphQL APIs, WebSockets, OAuth/OIDC/SAML flows, or webhooks, read `references/web-application.md`. This is a cross-stack module: use it alongside every relevant language/framework reference, not only for JavaScript frontends.
 
-When AWS is detected, read `references/stacks/aws.md`. It contains the AWS/IaC review matrix and the boundary between source-verifiable and live-only controls.
+When AWS is detected, read `references/stacks/aws.md`. In posture or combined mode, also read `references/stacks/aws-posture-controls.md` and complete its control ledger before reporting.
 
 Read stack references progressively. Do not load guidance for absent stacks.
 
@@ -73,6 +73,13 @@ Select applicable attack classes from `references/attack-classes.md` and the det
 6. dependency vulnerabilities only when the vulnerable functionality is reachable.
 
 If the harness supports parallel agents, divide work by trust boundary or attack class. Keep candidate validation independent from discovery when practical. If it does not, perform a separate adversarial validation pass after clearing the discovery hypothesis from the working checklist.
+
+For AWS combined mode, create two independent worklists before tracing candidates:
+
+1. exploit paths by trust boundary from the AWS module;
+2. every row in the AWS posture-control catalog that is applicable or cannot yet be classified.
+
+Do not stop after the exploit-path worklist. A blocked exploit may still establish a posture failure, and unavailable live evidence must remain visible as `unverified` rather than disappearing from the report.
 
 ### 3. Trace and test
 
@@ -109,6 +116,7 @@ node scripts/validate-findings.mjs <path-to-findings.json>
 
 State coverage limits and untested assumptions. If no vulnerability meets the bar, say so plainly; do not manufacture low-value findings.
 Call out controls that were examined and held up, especially when they rejected plausible attack paths.
+In AWS combined mode, do not issue the final report until every catalog row is marked `pass`, `fail`, `not-applicable`, or `unverified`. Include all `fail` rows as posture findings and summarize the other statuses in the coverage ledger. Do not omit posture results to keep the report short; use a compact table or machine-readable appendix when necessary.
 
 ## Non-negotiable rules
 

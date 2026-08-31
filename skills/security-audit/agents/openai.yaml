@@ -1,4 +1,4 @@
 interface:
   display_name: "Stack-aware Security Audit"
   short_description: "Find vulnerabilities and cloud posture gaps"
-  default_prompt: "Use $security-audit to detect this stack, audit exploitable paths and applicable AWS/IaC posture controls, and validate every finding."
+  default_prompt: "Use $security-audit to audit exploit paths and, for AWS/IaC, complete every applicable posture-control row with explicit coverage status before reporting."

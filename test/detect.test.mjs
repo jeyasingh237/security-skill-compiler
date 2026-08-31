@@ -41,7 +41,9 @@ test("ignores generated agent skills and dependency directories", async (context
     "go.mod": "module example.test/service\n\ngo 1.24\n",
     "main.go": "package main\nfunc main() {}\n",
     "node_modules/pkg/package.json": JSON.stringify({ dependencies: { next: "99.0.0" } }),
-    ".agents/skills/example/reference.py": "import django\n"
+    ".agents/skills/example/reference.py": "import django\n",
+    ".terraform/modules/example/main.tf": 'resource "aws_s3_bucket" "generated" {}\n',
+    ".terragrunt-cache/example/main.tf": 'resource "aws_iam_role" "generated" {}\n'
   });
   context.after(() => fs.rm(root, { recursive: true, force: true }));
 
@@ -49,6 +51,7 @@ test("ignores generated agent skills and dependency directories", async (context
   assert.equal(detection.primaryStack, "go");
   assert.equal(detection.stacks.some((stack) => stack.id === "javascript-typescript"), false);
   assert.equal(detection.stacks.some((stack) => stack.id === "python"), false);
+  assert.equal(detection.stacks.some((stack) => stack.id === "aws"), false);
 });
 
 test("matches simple framework names as dependency tokens, not substrings", async (context) => {
@@ -107,4 +110,17 @@ test("detects AWS from a single SDK dependency", async (context) => {
   const aws = detection.stacks.find((stack) => stack.id === "aws");
   assert.ok(aws);
   assert.ok(aws.frameworks.includes("AWS SDK"));
+});
+
+test("caps verbose profile evidence without dropping detection", async (context) => {
+  const files = Object.fromEntries(Array.from({ length: 12 }, (_, index) => [
+    `services/service-${index}.tf`,
+    `resource "aws_s3_bucket" "bucket_${index}" { bucket = "bucket-${index}" }\n`
+  ]));
+  const root = await fixture(files);
+  context.after(() => fs.rm(root, { recursive: true, force: true }));
+
+  const detection = await detectRepository(root);
+  assert.ok(detection.stacks.some((stack) => stack.id === "aws"));
+  assert.match(formatDetectionMarkdown(detection), /more signals/);
 });

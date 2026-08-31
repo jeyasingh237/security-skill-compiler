@@ -4,7 +4,7 @@
 
 Report a vulnerability only when attacker control, reachability, missing/insufficient defenses, and meaningful impact are supported by evidence. Use a separate "Needs deployment validation" section for strong hypotheses that require unavailable infrastructure. Put non-exploitable improvements under "Hardening notes".
 
-For an explicitly requested cloud/IaC posture or benchmark review, report independently evidenced control failures under "Posture findings." A posture finding does not need a demonstrated attack path, but it does need an applicable security objective, an affected resource/scope, and evidence that the control actually fails. Do not mark a live-account control failed merely because it is absent from repository IaC.
+For posture or combined mode, report independently evidenced control failures under "Posture findings." AWS repository-wide and infrastructure-wide audits select combined mode by default unless the user explicitly requests exploitability-only output. A posture finding does not need a demonstrated attack path, but it does need an applicable security objective, an affected resource/scope, and evidence that the control actually fails. Do not mark a live-account control failed merely because it is absent from repository IaC.
 
 ## Severity
 
@@ -93,6 +93,7 @@ Before issuing the report, verify all of the following:
 - A manual business-logic pass examined invariants, state transitions, concurrency, alternate channels, chained attacks, and implicit trust assumptions—not only scanner-friendly vulnerability classes.
 - Duplicate symptoms were consolidated by root cause, generic hardening was separated, and Low findings were retained only when they have confirmed security impact.
 - Material controls that resisted plausible attacks are acknowledged as bounded positive assurance, without claiming the target is secure.
+- In AWS combined mode, every row from `references/stacks/aws-posture-controls.md` has a ledger status, every proven failure is reported, and every unverified control names the missing evidence. The report is incomplete if it contains exploit findings but no posture ledger.
 
 ## Audit summary
 
@@ -108,5 +109,7 @@ Include:
 - tooling executed and its limitations;
 - untested surfaces and deployment assumptions;
 - rejected high-signal candidates when explaining false-positive control is useful.
+
+For large posture results, keep confirmed vulnerabilities detailed and present posture findings in a compact table plus grouped remediation notes or a machine-readable appendix. Report length is not a reason to omit failed controls.
 
 Never state that a codebase is secure. State what was reviewed and what was or was not found under the stated conditions.
