@@ -39,6 +39,8 @@ Always read:
 - `references/attack-classes.md`
 - `references/reporting.md` when preparing findings
 
+When the target exposes HTTP routes, browser UI, REST/GraphQL APIs, WebSockets, OAuth/OIDC/SAML flows, or webhooks, read `references/web-application.md`. This is a cross-stack module: use it alongside every relevant language/framework reference, not only for JavaScript frontends.
+
 When AWS is detected, read `references/stacks/aws.md`. It contains the AWS/IaC review matrix and the boundary between source-verifiable and live-only controls.
 
 Read stack references progressively. Do not load guidance for absent stacks.
@@ -97,7 +99,7 @@ Reject exploit candidates that fail. In posture or combined mode, retain indepen
 
 ### 5. Report
 
-Follow `references/reporting.md`. Every confirmed vulnerability must include a stable ID, severity, confidence, affected location, attacker prerequisites, exact attack path, impact, evidence, remediation, and validation status. Every posture finding must identify its control family, affected resources, evidence class, risk, remediation, and validation status.
+Follow `references/reporting.md` and complete its final quality gate before issuing the report. Every confirmed vulnerability must include a stable ID, severity, confidence, affected location, attacker prerequisites, exact attack path, impact, evidence, remediation, and validation status. Every posture finding must identify its control family, affected resources, evidence class, risk, remediation, and validation status.
 
 If structured artifacts are requested, write `findings.json` against `report-schema.json` and run:
 
@@ -106,6 +108,7 @@ node scripts/validate-findings.mjs <path-to-findings.json>
 ```
 
 State coverage limits and untested assumptions. If no vulnerability meets the bar, say so plainly; do not manufacture low-value findings.
+Call out controls that were examined and held up, especially when they rejected plausible attack paths.
 
 ## Non-negotiable rules
 

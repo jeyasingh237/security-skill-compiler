@@ -81,6 +81,19 @@ What was checked, collection time when live, and remaining gaps.
 
 Group resources only when the failed control, cause, severity, and remediation are the same. Otherwise split them. Preserve machine-readable resource lists when a human-readable group would be too long.
 
+## Final quality gate
+
+Before issuing the report, verify all of the following:
+
+- Every vulnerability has a concrete attacker, reachable path, tested or source-verified defense bypass, and meaningful impact. Drop merely theoretical candidates; place strong hypotheses requiring unavailable infrastructure under “Needs deployment validation” with the exact missing evidence.
+- Severity reflects the demonstrated impact and real prerequisites. A missing defense-in-depth layer is not High or Critical when an effective layer still blocks the attack.
+- The stated trust model and effective deployment controls were checked. Do not report intentionally authorized behavior or infer missing CDN, gateway, identity-provider, service-mesh, or platform controls from repository absence.
+- Parser, protocol, framework, and runtime claims were tested against the relevant version or supported by an authoritative specification/source. Distinguish static reasoning from dynamic confirmation.
+- Broad safety claims were challenged by enumerating applicable escape hatches, including raw queries, dynamic identifiers/operators, search/FTS, unsafe rendering, middleware exclusions, alternate/bulk paths, and parser boundaries.
+- A manual business-logic pass examined invariants, state transitions, concurrency, alternate channels, chained attacks, and implicit trust assumptions—not only scanner-friendly vulnerability classes.
+- Duplicate symptoms were consolidated by root cause, generic hardening was separated, and Low findings were retained only when they have confirmed security impact.
+- Material controls that resisted plausible attacks are acknowledged as bounded positive assurance, without claiming the target is secure.
+
 ## Audit summary
 
 Include:
@@ -91,6 +104,7 @@ Include:
 - posture findings by severity and control family when posture mode was requested;
 - the evidence classes used and a control-coverage ledger (`pass`, `fail`, `not-applicable`, `unverified`) for cloud posture work;
 - areas reviewed with no confirmed vulnerability;
+- material controls that were validated and resisted plausible attacks, phrased as bounded positive assurance;
 - tooling executed and its limitations;
 - untested surfaces and deployment assumptions;
 - rejected high-signal candidates when explaining false-positive control is useful.

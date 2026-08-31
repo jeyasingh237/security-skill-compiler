@@ -19,6 +19,7 @@ test("compiles a pruned, repository-specific skill", async (context) => {
   assert.equal(result.detection.primaryStack, "rust");
   assert.match(await fs.readFile(path.join(result.destination, "STACK_PROFILE.md"), "utf8"), /Axum/);
   assert.equal(await fs.stat(path.join(result.destination, "references/stacks/rust.md")).then(() => true), true);
+  assert.equal(await fs.stat(path.join(result.destination, "references/web-application.md")).then(() => true), true);
   assert.equal(await fs.stat(path.join(result.destination, "references/stacks/python.md")).then(() => true, () => false), false);
   const manifest = JSON.parse(await fs.readFile(path.join(result.destination, "compiler-manifest.json"), "utf8"));
   assert.equal(manifest.compiler, "security-skill-compiler");

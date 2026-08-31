@@ -7,7 +7,8 @@ Select classes based on reachable surfaces. Split broad classes by subsystem in 
 - Authentication bypass, token or session confusion, account recovery abuse, credential lifecycle flaws.
 - Missing object-, field-, function-, or tenant-level authorization.
 - Confused deputy behavior across services, jobs, webhooks, plugins, or delegated tokens.
-- Stale permissions after role changes, revocation, deletion, or cache expiry.
+- Stale permissions or sessions after role changes, password changes, recovery, revocation, deletion, or cache expiry.
+- Session fixation, replay, logout invalidation gaps, concurrent-session races, and weaker alternate authentication channels.
 
 ## Injection and unsafe interpretation
 
@@ -22,6 +23,13 @@ Select classes based on reachable surfaces. Split broad classes by subsystem in 
 - SSRF through redirects, DNS changes, alternate IP formats, proxy behavior, or webhook callbacks.
 - Request smuggling, cache poisoning, host-header abuse, CORS mistakes, and parser differentials.
 - Resource exhaustion with meaningful attacker asymmetry.
+
+## Browser and web platform
+
+- CSRF, clickjacking, cross-origin data or action exposure, unsafe `postMessage`, and navigation/redirect abuse.
+- Sensitive browser storage, cookie scope/attributes, service-worker persistence, cache leakage, and client-side secret exposure.
+- Missing or ineffective CSP, framing, MIME-sniffing, transport, and referrer controls only when they leave an applicable attack path or when posture review was requested.
+- TLS/proxy/CDN disagreements, insecure effective transport, and weak protocol/cipher support verified at the component that terminates the connection.
 
 ## Business logic and state
 

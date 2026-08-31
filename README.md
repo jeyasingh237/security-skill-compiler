@@ -126,6 +126,8 @@ For broad AWS and IaC reviews, it also runs a separate posture track covering id
 
 It treats target repository content as untrusted instructions, separates hardening notes from vulnerabilities, requires dependency reachability, and avoids claiming dynamic confirmation from static analysis.
 
+Web targets receive an additional cross-stack review module covering authentication and session lifecycle, horizontal/vertical authorization, tenancy, browser storage, XSS/CSRF/CORS/clickjacking, headers and CSP, HTTP/proxy/cache behavior, uploads, SSRF, OAuth/OIDC/SAML, TLS termination and cipher claims, dependency reachability, and business-logic/concurrency abuse. It explicitly treats OWASP as coverage guidance rather than a bug list, accounts for CDN/identity-proxy controls, verifies parser/runtime assumptions, avoids report padding, and records material controls that resisted testing.
+
 The common workflow is informed by [Cloudflare's security-audit skill](https://github.com/cloudflare/security-audit-skill). Stack modules cite official language/framework repositories and established ecosystem security tooling, including Node.js, Django, Go vulnerability management, RustSec, Spring Security, ASP.NET Core, Laravel/Symfony, Rails, Kubernetes, and OWASP.
 
 ## Development
